@@ -18,3 +18,4 @@ for t in range(1, T + 1):
     if bool_max[-1]:
         sol += 1
     print("Case #{}: ".format(t) + str(sol))
+
