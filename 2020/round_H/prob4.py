@@ -1,42 +1,37 @@
-# Solution only for the first testing set
-
 from collections import deque, defaultdict
 
 def solution(N, Q, words, queries):
+    adj = defaultdict(set) # from letter to neighbors
+    #for w in words:
+        #for char1 in w:
+            #for char2 in w:
+                #adj[char1].add(char2)
+    [adj[char1].add(char2) for w in words for char1 in w for char2 in w]
 
-    adj_words= defaultdict(list)
-
-    for w1 in words:
-        s1 = set([char for char in w1])
-        for w2 in words:
-            s2 = set([char for char in w2])
-            if len(s1.intersection(s2)):
-                adj_words[w1].append(w2)
-
-    dist_words = {}
-    for start in words:
+    # do BFS for each char to construct distance between chars
+    d = {}
+    for start in adj:
         q = deque()
         q.append(start)
         dist_start = {}
         dist_start[start] = 0
-        dist_words[(start, start)] = 0
+        d[(start, start)] = -2
         while len(q) > 0:
-            w = q.popleft()
-            for neigh in adj_words[w]:
+            char = q.popleft()
+            for neigh in adj[char]:
                 if neigh not in dist_start:
                     q.append(neigh)
-                    dist_start[neigh] = dist_start[w] + 1
-                    dist_words[(start,neigh)] = dist_start[neigh]
+                    dist_start[neigh] = dist_start[char] - 1
+                    d[(start, neigh)] = dist_start[neigh]
+    for char1 in adj:
+        for char2 in adj:
+            if (char1, char2) not in d:
+                d[(char1, char2)] = 1
 
+    # Now do the queries using dist_pairs
     sol = []
     for [i1, i2] in queries:
-        w1 = words[i1-1]
-        w2 = words[i2-1]
-        if (w1,w2) not in dist_words:
-            sol.append(-1)
-        else:
-            sol.append(dist_words[(w1,w2)] + 1)
-
+        sol.append(-min(d[(c1,c2)] for c1 in words[i1-1] for c2 in words[i2-1] ) )
     return list(map(str,sol))
 
 if __name__ == '__main__':
